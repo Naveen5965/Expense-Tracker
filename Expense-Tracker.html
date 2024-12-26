@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <title>Expense Tracker</title>
+    <style>
+        body {
+        font-family: sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f0f0f0;
+        }
+
+        h1 {
+        text-align: center;
+        margin-bottom: 20px;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+        width: 20%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid goldenrod;
+        border-radius: 3px;
+        }
+
+        button {
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+        margin-bottom: 10px;
+        margin-right: 10px;
+        }
+
+        table {
+        width: 100%;
+        border-collapse: collapse;
+        }
+        
+        th,
+        td {
+            border: 1px solid black;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+        background-color: skyblue;
+        }
+    </style>
+    </head>
+
+    <body>
+
+        <h1>Expense Tracker</h1>
+
+        <input type="text" id="description" placeholder="Description">
+        <input type="number" id="amount" placeholder="Amount">
+        <button onclick="addExpense()">Add Expense</button>
+
+        <table>
+            <thead>
+            <tr>
+                <th>Description</th>
+                <th>Amount</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody id="expenseList"></tbody>
+        </table>
+
+        <script>
+            const descriptionInput = document.getElementById('description');
+            const amountInput = document.getElementById('amount');
+            const expenseList = document.getElementById('expenseList');
+            // Load expenses from local storage on page load
+            window.onload = () => {
+            const storedExpenses = JSON.parse(localStorage.getItem('expenses')) || [];
+            loadExpenses(storedExpenses);
+            };
+
+            function addExpense() {
+            const description = descriptionInput.value;
+            const amount = parseFloat(amountInput.value);
+            if (description && !isNaN(amount)) {
+                const expense = {
+                description,
+                amount
+                };
+                const expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+                expenses.push(expense);
+                localStorage.setItem('expenses', JSON.stringify(expenses));
+                loadExpenses(expenses);
+                descriptionInput.value = '';
+                amountInput.value = '';
+            }
+            }
+
+            function loadExpenses(expenses) {
+            expenseList.innerHTML = '';
+            expenses.forEach((expense, index) => {
+                const row = document.createElement('tr');
+                const descriptionCell = document.createElement('td');
+                descriptionCell.textContent = expense.description;
+                const amountCell = document.createElement('td');
+                amountCell.textContent = '$' + expense.amount.toFixed(2);
+                const actionsCell = document.createElement('td');
+                const editButton = document.createElement('button');
+                editButton.textContent = 'Edit';
+                editButton.addEventListener('click', () => editExpense(index));
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.addEventListener('click', () => deleteExpense(index));
+                actionsCell.appendChild(editButton);
+                actionsCell.appendChild(deleteButton);
+                row.appendChild(descriptionCell);
+                row.appendChild(amountCell);
+                row.appendChild(actionsCell);
+                expenseList.appendChild(row);
+            });
+            }
+
+            function editExpense(index) {
+            const expenses = JSON.parse(localStorage.getItem('expenses'));
+            const expense = expenses[index];
+            descriptionInput.value = expense.description;
+            amountInput.value = expense.amount;
+            // Implement logic to update the expense in local storage and reload the list
+            }
+
+            function deleteExpense(index) {
+            const expenses = JSON.parse(localStorage.getItem('expenses'));
+            expenses.splice(index, 1);
+            localStorage.setItem('expenses', JSON.stringify(expenses));
+            loadExpenses(expenses);
+            }
+        </script>
+
+    </body>
+</html>
